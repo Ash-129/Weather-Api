@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="api.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <input type="text" id="cityInput" placeholder="Enter city name" />
+            <button onclick="searchCity()" class="refresh">
+                <i class="fa fa-search"></i> Search
+            </button>
+            <h2><i class="fa fa-map-marker"></i> <span id="location">--</span></h2>
+            <h6 id="weather">--</h6>
+            <h4><span id="temp">--</span><sup>o</sup>C</h4>
+            <img src="" id="icon" alt="Weather Icon">
+            <p><strong>Humidity:</strong> <span id="humidity">--</span>%</p>
+            <p><strong>Wind Speed:</strong> <span id="wind">--</span> m/s</p>
+            <button onclick="refreshWeather()" class="refresh">
+                <i class="fa fa-refresh"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+    <script>
+        const apiKey = "0a4da2086e417c5108d891007886466d";
+        let currentCity = "nagpur";
+
+        function getWeather(city = currentCity) {
+            const link = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+            $.get(link, function (data) {
+                currentCity = data.name;
+                $('#location').text(data.name);
+                $('#weather').text(data.weather[0].description);
+                $('#temp').text(Math.round(data.main.temp - 273.15));
+                $('#icon').attr("src", `https://openweathermap.org/img/w/${data.weather[0].icon}.png`);
+                $('#humidity').text(data.main.humidity);
+                $('#wind').text(data.wind.speed);
+            }).fail(function () {
+                alert("City not found. Please try again.");
+            });
+        }
+
+        function refreshWeather() {
+            getWeather(currentCity);
+        }
+
+        function searchCity() {
+            const city = $('#cityInput').val().trim();
+            if (city !== "") {
+                getWeather(city);
+            } else {
+                alert("Please enter a city name.");
+            }
+        }
+
+        // Trigger searchCity() on Enter key
+        $('#cityInput').on('keypress', function (e) {
+            if (e.which === 13) {
+                searchCity();
+            }
+        });
+
+        // Initial weather fetch on page load
+        $(document).ready(function () {
+            getWeather();
+        });
+    </script>
+</body>
+
+</html>
